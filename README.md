@@ -22,3 +22,9 @@ FASconCAT-G_v1.02.pl -p -l -s -n -n
 ```
 iqtree -s FcC_supermatrix.phy -m TESTONLY -mset mrbayes -nt 1
 ```
+
+## Bayesian analysis
+
+```
+mb FcC_supermatrix.nex
+```
