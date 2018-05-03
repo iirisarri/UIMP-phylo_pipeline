@@ -6,7 +6,8 @@ Nowadays we can infer the evolutionary history from large genomic datasets: phyl
 
 We will learn a few basic concepts to get you started inferring trees. Note that this does not want to be a comprehensive account of available methods, models, pipelines, etc. The phylogenetic literature is extensive and one can find very good information elsewhere (see a few suggested sources at the very end)
 
-# Data in phylogenomics
+
+## Data in phylogenomics
 
 <<Data types.
 
@@ -14,24 +15,50 @@ Assembling (good-quality) phylogenomic datasets can be extremely painful and tim
 
 Luckily, we will skip this pain in the ass. 
 
-# Homology, orthology and paralogy
+
+## Homology, orthology and paralogy
 
 <<explain
 
-# A phylogenomic pipeline
 
-As a toy example, we will use a dataset of several species of a cool marine snail (Conus), composed of nuclear and mitochondrial genes.
-Conus are extremely [beautiful and cool animals](https://www.youtube.com/watch?v=zcBmMPJrrKk).
+## A phylogenomics pipeline
+
+As a toy example, we will use a dataset of several species of a cool marine snail (*Conus*), composed of nuclear and mitochondrial genes.
+*Conus* are extremely [beautiful and cool animals](https://www.youtube.com/watch?v=zcBmMPJrrKk).
+
 
 ## Obtaining data
 
+Let's start by downloading the data.
 
-Go to https://datasciencehub.ifca.es/ and download the dataset
+Connect to [our server](https://datasciencehub.ifca.es/).
 
-The dataset is available at: https://github.com/iirisarri/UIMP-phylo_pipeline/Conus_mito_nuclear.zip
+You can download the dataset from [this respository](https://github.com/iirisarri/UIMP-phylo_pipeline/Conus_mito_nuclear.zip)
 
+Decompress the data and go to Alignments/Mito_and_nuclear.
+
+
+## Adding new sequences to our alignments
+
+The easiest way of adding new sequences to a existing dataset is using BLAST. We will add the new transcriptome and mitogenome assembled for [*Conus ermineus*](https://en.wikipedia.org/wiki/Conus_ermineus).
+
+Create the database with the new transriptome and mitogenome
+```
+makeblastdb -in your_assembly -dbtype nucl -parse_seqids
+```
+Change directory into the nuclear genes and blast them against the transcriptome. Repeat it with the mitochondrial genes and the newly assembled mitogenome
+
+```
+for f in *fas; do blastn -query $f -db my_database -num_descriptions 1 -num_alignments 1 > my_outfile.blastn
+```
+Extract hits
+```
+perl
+```
 
 ## Multiple sequence alignment
+
+We will align gene file
 
 ## Concatenate alignment
 
