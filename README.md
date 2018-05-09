@@ -6,20 +6,19 @@ Nowadays we can infer the evolutionary history from large genomic datasets: phyl
 
 We will learn a few basic concepts to get you started inferring trees. Note that this does not want to be a comprehensive account of available methods, models, pipelines, etc. The phylogenetic literature is extensive and one can find very good information elsewhere (see a few suggested sources at the very end)
 
-
 ## Data in phylogenomics
 
 <<Data types.
 
 Assembling (good-quality) phylogenomic datasets can be extremely painful and time-consuming. A large part of phylogenomics is spent in mining databases for new genomic data and an even larger part should be used in creating good phylogenomic datasets.
 
-Luckily, we will skip this pain in the ass. 
-
+Luckily, today we can skip this pain in the ass :-)
 
 ## Homology, orthology and paralogy
 
-<<explain
-
+Homology: origin from common ancestry.
+Orthology: homology derived from an speciation event.
+Paralogy: homology derived from a duplication event.
 
 ## A phylogenomics pipeline
 
@@ -34,9 +33,12 @@ Let's start by downloading the data.
 Connect to [our server](https://datasciencehub.ifca.es/).
 
 You can download the dataset from [this respository](https://github.com/iirisarri/UIMP-phylo_pipeline/Conus_mito_nuclear.zip)
+Put the data in your preferred location, decompress and go to Alignments/Mito_and_nuclear.
 
-Decompress the data and go to Alignments/Mito_and_nuclear.
-
+```
+wget https://github.com/iirisarri/UIMP-phylo_pipeline/Conus_mito_nuclear.zip
+cd Conus_mito_nuclear/Alignments/Mito_and_nuclear
+```
 
 ## Adding new sequences to our alignments
 
@@ -46,8 +48,7 @@ Create the database with the new transriptome and mitogenome
 ```
 makeblastdb -in your_assembly -dbtype nucl -parse_seqids
 ```
-Change directory into the nuclear genes and blast them against the transcriptome. Repeat it with the mitochondrial genes and the newly assembled mitogenome
-
+BLAST the nuclear genes against the transcriptome. Repeat it with mitochondrial genes and the newly assembled mitogenome
 ```
 for f in *fas; do blastn -query $f -db my_database -num_descriptions 1 -num_alignments 1 > my_outfile.blastn
 ```
@@ -59,6 +60,10 @@ perl
 ## Multiple sequence alignment
 
 We will align gene file
+
+```
+for f in *.fas; do mafft $f > out; mv out $f; done
+```
 
 ## Concatenate alignment
 
