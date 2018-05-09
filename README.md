@@ -6,6 +6,8 @@ Nowadays we can infer the evolutionary history from large genomic datasets: phyl
 
 We will learn a few basic concepts to get you started inferring trees. Note that this does not want to be a comprehensive account of available methods, models, pipelines, etc. The phylogenetic literature is extensive and one can find very good information elsewhere (see a few suggested sources at the very end)
 
+A phylogenetic tree is a hypothesis of how our data (sequences) evolved. To select the most probable hypothesis we use statistics: probabilistic inference methods. These have explicit assumptions that can be tested and improved.
+
 ## Data in phylogenomics
 
 <<Data types.
@@ -59,7 +61,7 @@ perl
 
 ## Multiple sequence alignment
 
-We will align gene file
+We will align each gene file separately.
 
 ```
 for f in *.fas; do mafft $f > out; mv out $f; done
@@ -67,18 +69,29 @@ for f in *.fas; do mafft $f > out; mv out $f; done
 
 ## Concatenate alignment
 
+Create a super-alignment by concatenating all gene files. We will use [FASconCAT](link), which will read in all \*.fas \*.phy or \*.nex files in the working directory and concatenate them (randomly) into a super alignment. Output format can be chosen and additional information is also printed out.
+
 ```
-uzip Conus_mito_nuclear.zip
-cd Conus_mito_nuclear
 FASconCAT-G_v1.02.pl -p -l -s -n -n
 ```
 
 ## Select best-fit evolutionary models for each gene
+
+Evolutionary models are mathematical descriptions of the process by which our data evolved. We need to assume a explicit model in probabilistic phylogenetic inference. 
+
+Several evolutonary models are available. Which one to choose? The one that fits best our data is likely the one under which our data was generated. We will select the model that best fits our data.
+
+In our case, we will select best-fit models for each gene separately. Among all possible models, we will first compare only those implemented in MrBayes, as it is our first analysis. This can be easily done with the iqtree software:
+
 ```
 iqtree -s FcC_supermatrix.phy -m TESTONLY -mset mrbayes -nt 1
 ```
 
 ## Bayesian tree inference
+
+Now we will start inferring actual trees, yay! We will start with Bayesian inference, because it takes longer to compute.
+
+In MrBayes, all commands are read from the infile that also contains the alignments. So first of all we need to prepare the input file, which is in nexus format. To do this, we need to manually edit
 
 ```
 mb FcC_supermatrix.nex
