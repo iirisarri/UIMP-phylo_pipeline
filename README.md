@@ -44,27 +44,42 @@ cd Conus_mito_nuclear/Alignments/Mito_and_nuclear
 
 ## Adding new sequences to our alignments
 
-The easiest way of adding new sequences to a existing dataset is using BLAST. We will add the new transcriptome and mitogenome assembled for [*Conus ermineus*](https://en.wikipedia.org/wiki/Conus_ermineus).
+The easiest way of adding new sequences to a existing dataset is using BLAST. We will add the assembled transcriptome of [*Conus ermineus*](https://en.wikipedia.org/wiki/Conus_ermineus). To speed up this process, we will use a custom per script that takes a gene alignment \(query\) and the collection of sequences from the species of interest, in this case the transcriptome \(database\). It blasts each sequence in the query against each sequence in the database to find the best hit, then this hit is retrieved from the database and printed to a file (.hit.fa). The same could be done using the mitochondrial gene files and the collection of mitochondrial genes assembled for *C. ermineus*.
 
-Create the database with the new transriptome and mitogenome
+For the script to run, make sure to have all nuclear gene alignments and the Trinity assembly in the same folder. To avoid problems, simplify the headers of Trinity assemblies. Then, run the script in a for loop.
+
 ```
-makeblastdb -in your_assembly -dbtype nucl -parse_seqids
+cp ../assemblies/Trinity_ermineus.fasta .
+for f in Trinity*.fasta; sed -E '/>/ s/ len=.+//g' $f > out: mv out $f: done
+for f in *fas; do perl ../scripts/blastn_and_extract_hits.pl $f Trinity_ermineus.fasta; done 
 ```
-BLAST the nuclear genes against the transcriptome. Repeat it with mitochondrial genes and the newly assembled mitogenome
+The blastn_and_extract_hits.pl script should have produced one hits.fa file containing a single sequence, which should correspond to the best hit (most similar sequence found in the database). Check that a each file contains only a single best sequence.
+Now, since we want beautiful names in the final alignments, let's change the default Trinity codes. Then we will be ready to append the new sequence to the existing alignment.
 ```
-for f in *fas; do blastn -query $f -db my_database -num_descriptions 1 -num_alignments 1 > my_outfile.blastn
+for f in *hits.fa; do sed -E '/>/ s/TRINITY.+/Conus_ermineus/g' > out; mv out $f; done
+for f in *fas; do  cat $f $f.hits.fa > $f.new.fas; done
 ```
-Extract hits
-```
-perl
-```
+NOTE: the best BLAST hit is not necessarily ortholog to the query sequences, but can be a paralog. Paralogs should always be removed prior to phylogenetic inference! One simple way could be to build single-gene trees and look for extremely long branches, which are probably paralgs. But this is not a trivial task and can become very time consuming for large datasets. Still, not a good enough reason to not do a proper job!
 
 ## Multiple sequence alignment
 
-We will align each gene file separately.
+We will align each gene file separately. Ideally, nucleotides of protein-coding genes should be aligned at the codon level, using tools such as [TranslatorX](http://translatorx.co.uk/). For non-coding genes, nucleotides should be treated individually, as done by mafft:
 
 ```
 for f in *.fas; do mafft $f > out; mv out $f; done
+```
+
+## Alignment trimming
+
+Some gene regions (e.g., fast-evolving regions) are difficult to align and thus positional homology is unceratin. It is unclear (probably problem-specific) whether trimming badly-aligned regions [improves](https://academic.oup.com/sysbio/article/56/4/564/1682121) or [worsens](https://academic.oup.com/sysbio/article/64/5/778/1685763) tree inferece. However, gently trimming very incomplete positions (e.g. with >80% gaps) reduces dataset time and thus speeds up computation time. 
+
+Removing alignment positions with > 80% gaps.
+```
+for f in *.fas; do java -jar ../scripts/BMGE $f > out; mv out $f; done
+```
+
+Removing alignment positions with > 80% gaps.
+```
 ```
 
 ## Concatenate alignment
