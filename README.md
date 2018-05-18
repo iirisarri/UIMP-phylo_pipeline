@@ -18,14 +18,16 @@ Luckily, today we can skip this pain in the ass :-)
 
 ## Homology, orthology and paralogy
 
-Homology: origin from common ancestry.
-Orthology: homology derived from an speciation event.
-Paralogy: homology derived from a duplication event.
+Key concepts to remember when dealing with sequence data.
+
+**Homology**: origin from common ancestry
+**Orthology**: homology derived from an speciation event
+**Paralogy**: homology derived from a duplication event
 
 ## A phylogenomics pipeline
 
-As a toy example, we will use a dataset of several species of a cool marine snail (*Conus*), composed of nuclear and mitochondrial genes.
-*Conus* are extremely [beautiful and cool animals](https://www.youtube.com/watch?v=zcBmMPJrrKk).
+As a toy example, we will use a dataset of several species of a cool marine snail (Conidae), composed of nuclear and mitochondrial genes.
+Cone snails are extremely [beautiful and cool animals](https://www.youtube.com/watch?v=zcBmMPJrrKk).
 
 
 ## Obtaining data
@@ -34,30 +36,32 @@ Let's start by downloading the data.
 
 Connect to [our server](https://datasciencehub.ifca.es/).
 
-You can download the dataset from [this respository](https://github.com/iirisarri/UIMP-phylo_pipeline/Conus_mito_nuclear.zip)
-Put the data in your preferred location, decompress and go to Alignments/Mito_and_nuclear.
+You can download the dataset from [this respository](https://github.com/iirisarri/UIMP-phylo_pipeline/conidae_mito_nuclear.zip)
+Put the data in your preferred location and decompress.
 
 ```
-wget https://github.com/iirisarri/UIMP-phylo_pipeline/Conus_mito_nuclear.zip
-cd Conus_mito_nuclear/Alignments/Mito_and_nuclear
+wget https://github.com/iirisarri/UIMP-phylo_pipeline/conidae_mito_nuclear.tar.gz
+tar zxvf conidae_mito_nuclear.tar.gz
 ```
 
 ## Adding new sequences to our alignments
 
-The easiest way of adding new sequences to a existing dataset is using BLAST. We will add the assembled transcriptome of [*Conus ermineus*](https://en.wikipedia.org/wiki/Conus_ermineus). To speed up this process, we will use a custom per script that takes a gene alignment \(query\) and the collection of sequences from the species of interest, in this case the transcriptome \(database\). It blasts each sequence in the query against each sequence in the database to find the best hit, then this hit is retrieved from the database and printed to a file (.hit.fa). The same could be done using the mitochondrial gene files and the collection of mitochondrial genes assembled for *C. ermineus*.
+The easiest way of adding new sequences to a existing dataset is using BLAST. We will add the assembled transcripts of [*Conus ermineus*](https://en.wikipedia.org/wiki/Conus_ermineus) to the nuclear genes. To speed up this process, we will use a custom per script that takes a gene alignment \(query\) and the collection of sequences from the species of interest, in this case the transcriptome \(database\). It blasts each sequence in the query against each sequence in the database to find the best hit, then this hit is retrieved from the database and printed to a file (.hit.fa). The same could be done using the mitochondrial gene files and the collection of mitochondrial genes assembled for *C. ermineus*.
 
 For the script to run, make sure to have all nuclear gene alignments and the Trinity assembly in the same folder. To avoid problems, simplify the headers of Trinity assemblies. Then, run the script in a for loop.
 
 ```
-cp ../assemblies/Trinity_ermineus.fasta .
-for f in Trinity*.fasta; sed -E '/>/ s/ len=.+//g' $f > out: mv out $f: done
-for f in *fas; do perl ../scripts/blastn_and_extract_hits.pl $f Trinity_ermineus.fasta; done 
+cd conidae_mito_nuclear/alignments/nuclear_genes
+cp ../../assemblies/Trinity_ermineus.fasta .
+for f in Trinity*.fasta; do sed -E '/>/ s/ len=.+//g' $f > out; mv out $f; done
+for f in *fas; do perl ../../scripts/blastn_and_extract_hits.pl $f Trinity_ermineus.fasta; done 
 ```
 The blastn_and_extract_hits.pl script should have produced one hits.fa file containing a single sequence, which should correspond to the best hit (most similar sequence found in the database). Check that a each file contains only a single best sequence.
-Now, since we want beautiful names in the final alignments, let's change the default Trinity codes. Then we will be ready to append the new sequence to the existing alignment.
+Now, since we want beautiful names in the final alignments, let's change the default Trinity codes. Then we will be ready to append the new sequence to the existing alignment. Finally, we can clean the folder by removing intermediate files created by the perl script.
 ```
-for f in *hits.fa; do sed -E '/>/ s/TRINITY.+/Conus_ermineus/g' > out; mv out $f; done
+for f in *hits.fa; do sed -E '/>/ s/TRINITY.+/Chelyconus_ermineus/g' $f > out; mv out $f; done
 for f in *fas; do  cat $f $f.hits.fa > $f.new.fas; done
+rm *nogaps *blastn *hits.fa Trinity_ermineus.fasta*
 ```
 NOTE: the best BLAST hit is not necessarily ortholog to the query sequences, but can be a paralog. Paralogs should always be removed prior to phylogenetic inference! One simple way could be to build single-gene trees and look for extremely long branches, which are probably paralgs. But this is not a trivial task and can become very time consuming for large datasets. Still, not a good enough reason to not do a proper job!
 
