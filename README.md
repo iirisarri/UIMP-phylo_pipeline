@@ -43,6 +43,13 @@ Put the data in your preferred location and decompress.
 wget https://github.com/iirisarri/UIMP-phylo_pipeline/conidae_mito_nuclear.tar.gz
 tar zxvf conidae_mito_nuclear.tar.gz
 ```
+Create a new directory where we can work with our data without changing the original files. To start, copy the nuclear gene alignments and the new transcriptome you just assembled (or Trinity-assembled transcripts in `assemblies/Trinity_ermineus.fasta`).
+```
+cd conidae_mito_nuclear
+mkdir phylosandbox
+cp conidae_mito_nuclear/alignments/nuclear_genes/*fas phylosandbox
+cp assemblies/Trinity_ermineus.fasta phylosandbox
+```
 
 ## Adding new sequences to our alignments
 
@@ -51,8 +58,6 @@ The easiest way of adding new sequences to a existing dataset is using BLAST. We
 For the script to run, make sure to have all nuclear gene alignments and the Trinity assembly in the same folder. To avoid problems, simplify the headers of Trinity assemblies. Then, run the script in a for loop.
 
 ```
-cd conidae_mito_nuclear/alignments/nuclear_genes
-cp ../../assemblies/Trinity_ermineus.fasta .
 for f in Trinity*.fasta; do sed -E '/>/ s/ len=.+//g' $f > out; mv out $f; done
 for f in *fas; do perl ../../scripts/blastn_and_extract_hits.pl $f Trinity_ermineus.fasta; done 
 ```
@@ -79,19 +84,25 @@ Some gene regions (e.g., fast-evolving regions) are difficult to align and thus 
 
 Removing alignment positions with > 80% gaps.
 ```
-for f in *.fas; do java -jar ../scripts/BMGE $f > out; mv out $f; done
+for f in *mafft; do java -jar ../../scripts/BMGE.jar -i $f -t DNA -op $f.trim.phy -h 1 -g 0.8; done
 ```
 
-Removing alignment positions with > 80% gaps.
+Alternatively, one can also remove high-entropy columns using de default settings (-m DNAPAM100:2 -g 0.2).
 ```
+for f in *mafft; do java -jar ../../scripts/BMGE.jar -i $f -t DNA -op $f.trim.phy; done
 ```
+We will generate an output in *phylip* format that will allow us to quickly check that alignments look nice and clean using `less -S` :-)
 
 ## Concatenate alignment
 
 Create a super-alignment by concatenating all gene files. We will use [FASconCAT](link), which will read in all \*.fas \*.phy or \*.nex files in the working directory and concatenate them (randomly) into a super alignment. Output format can be chosen and additional information is also printed out.
 
+First of all, create a new directory and copy all relevant files (both the mitochondrial and nuclear gene alignments!)
 ```
-FASconCAT-G_v1.02.pl -p -l -s -n -n
+mkdir concatenation
+mv *trim.fas concatenation
+cp ../../mitochondrial_genes/*fas .
+perl ../../../FASconCAT-G_v1.02.pl -p -l -s -n -n
 ```
 
 ## Select best-fit evolutionary models for each gene
