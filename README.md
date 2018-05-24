@@ -110,19 +110,45 @@ Several evolutonary models are available. Which one to choose? The one that fits
 
 In our case, we will select best-fit models for each gene separately. Among all possible models, we will first compare only those implemented in MrBayes, as it is our first analysis. This can be easily done with the iqtree software:
 ```
-iqtree -s FcC_supermatrix.phy -m TESTONLY -mset mrbayes -nt 1
+iqtree -s FcC_supermatrix.phy -spp FcC_supermatrix_partition.txt -m TESTONLY -mset mrbayes -nt 1
 ```
 
-## Bayesian tree inference
+The best-fit models will be printed to screen (also available in the .log and .best_scheme.nex files).
 
+## Bayesian tree inference
+### Setting the analysis
 Now we will start inferring actual trees, yay! We will start with Bayesian inference, because it takes longer to compute.
 
-In MrBayes, the input file contains both the alignment and all necessary commands (at the end of the file). To prepare the input file, we will need to manually edit the *nexus* concatenated file (FcC_supermatrix.nex): 1) remove all commands after `; end;` and replace with those in the scripts folder (e.g., `cat nexus_endfile.txt >> FcC_supermatrix.nex`) and 2) update the partition information and best-fit models obtained above.
+In MrBayes, the input file contains both the alignment and all necessary commands (at the end of the file). To prepare the input file, we will need to manually edit the *nexus* concatenated file (FcC_supermatrix_partition.nex, NOT FcC_supermatrix.nex). We will need to update the best-fit models based on our previous results (look for lset).
+
+How to set up the models?
+HKY and K2P correspond to nst=2
+GTR and SYM correspond to nst=6
+rate heterogeneity among sites is specified with rates=gamma (+G), rates=inv (+I) or rates=invgamma (+I+G)
+Modify the lset line and add as many lset lines as required to specify all your models.
+
+**Change number of generations?
+
+Then, edit the line referring to MCMC by changing mcmc by mcmcp.
 
 Once the input file is ready, let's simply run MrBayes. Good luck!!
 ```
 mb FcC_supermatrix.nex
 ```
+Setting mcmcp allow us to check whether the infile was correct. If so, we can start to run the MCMC chains by typing mcmc in the prompt.
+### Checking convergence
+
+After the runs are completed, we must check whether they converged. If not, then we should run the analysis longer or change the priors.
+
+How do we know whether the runs have converged? A very simple way is to the the standard deviation of split frequencies, which should be below 0.01. If this is the case, then we are good to go.
+
+Bear in mind that convergence is serious bussiness and one should normally use other tools, such as [AWTY](https://www.ncbi.nlm.nih.gov/pubmed/17766271) or [Tracer](http://tree.bio.ed.ac.uk/software/tracer/). But lest's leave this for next time.
+
+### Summarizing the posterior
+
+One the runs are converged, we can summarize the two MCMC chains to obtain our tree and posterior probabilities.
+
+The begining of the MCMC chains is not very good (we say the sampled before reaching stationarity, i.e. "bad trees"). 
 
 ## Maximum likelihood
 
