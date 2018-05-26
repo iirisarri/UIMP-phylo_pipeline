@@ -132,27 +132,51 @@ Modify the lset line and add as many lset lines as required to specify all your 
 Then, edit the line referring to MCMC by changing mcmc by mcmcp.
 
 Once the input file is ready, let's simply run MrBayes. Good luck!!
+
+Setting mcmcp and running MrBayes interactively (-i) allows us to check that the infile is correct.
 ```
-mb FcC_supermatrix.nex
+mb -i FcC_supermatrix_partition.nex
 ```
-Setting mcmcp allow us to check whether the infile was correct. If so, we can start to run the MCMC chains by typing mcmc in the prompt.
+If no errors are shown, we can start to run the MCMC chains by typing mcmc in the prompt.
+
 ### Checking convergence
 
 After the runs are completed, we must check whether they converged. If not, then we should run the analysis longer or change the priors.
 
-How do we know whether the runs have converged? A very simple way is to the the standard deviation of split frequencies, which should be below 0.01. If this is the case, then we are good to go.
+How do we know whether the runs have converged? A very simple way is to the the maximum difference of standard deviation of split frequencies, which should be below 0.01. If this is the case, then we are good to go.
 
-Bear in mind that convergence is serious bussiness and one should normally use other tools, such as [AWTY](https://www.ncbi.nlm.nih.gov/pubmed/17766271) or [Tracer](http://tree.bio.ed.ac.uk/software/tracer/). But lest's leave this for next time.
+Bear in mind that convergence is serious bussiness and one should normally use other tools, such as [AWTY](https://www.ncbi.nlm.nih.gov/pubmed/17766271) or [Tracer](http://tree.bio.ed.ac.uk/software/tracer/). But lest's leave this for next time :-)
 
 ### Summarizing the posterior
 
-One the runs are converged, we can summarize the two MCMC chains to obtain our tree and posterior probabilities.
+Once the runs are converged, we can summarize the posterior estimates from the two MCMC chains to obtain our tree and posterior probabilities.
 
-The begining of the MCMC chains is not very good (we say the sampled before reaching stationarity, i.e. "bad trees"). 
+Before summarizing the MCMC chains, we must exclude the initial generations because these contain bad stimates of the paramters and trees (we say they did not reach stationarity). Usually discarding 10-25% of the initial cycles is enough (known as "burnin"), but these should be checked with the tools mentioned above when checking if runs have converged.
+
+To summarize the MCMC chains in the stationary phase, we can run again MrBayes. Make sure your nexus file has mcmcp and not mcmc, since running MrBayes with mcmc will overwrite the runs that just finished! Then, we summarize the parameters (sump) and trees (sumt) indicating the proportion of generations that we want to exclude as burnin (relburnin).
+
+```
+mb -i FcC_supermatrix_partition.nex
+ > sump relburnin 0.1
+ > sumt relburnin 0.1
+```
+Congrats! You just generated your first [Bayesian estimate of phylogeny](https://www.youtube.com/watch?v=RMNwsdb5VU4)!
+
+Download the consensus file (.con), which is a summary of the trees sampled by the two MCMC chains during the stationary phase. The tree can be visualized with [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) or any other visualizing software. The number in branches (label) correspond to posterior probabilities, which inform us about the reliability of each branch in the phylogeny. Posterior probabilities >0.95 can be trusted as robust.
 
 ## Maximum likelihood
 
+Building maximum likelihood trees is easier than Bayesian trees because we will not need to check converngece.
 
+In this tutorial we will use IQTREE, which we had used previously to estimate the best-fit evolutionary models. We will estimate the phylogeny of conid snails as done before in a Bayesian framework, this time using a frequentist approach (maximum likelihood). Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (-s), gene partitions or coordinates (-spp), the model (-m), number of CPUs to use (-nt), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (-m TEST -merit AICc). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 100 pseudoreplicates of non-parametric bootstrapping (-b 100). 
+```
+iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit AICc -b 100 -nt 1
+```
+
+Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are non-parametric bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
+
+IQTREE provides many different options
 
 # Some notes on systematic error
+
 
