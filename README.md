@@ -37,7 +37,7 @@ Key concepts to remember when dealing with sequence data.
 
 Due to time constraints, we cannot analyze a real genome-scale dataset consisting of hundreds or thousands of genes and species. Instead, we will use a multi-locus mitochondrial and nuclear dataset of several species of cool marine snails (family Conidae). This datset will allow us to practice the basic steps in the phylogenomics pipeline, given that the basic steps are essentially the same with larger datasets. Moreover, cone snails are extremely [beautiful and cool animals](https://www.youtube.com/watch?v=zcBmMPJrrKk).
 
-## Obtaining data
+## Obtaining the data
 
 Let's start by downloading the data.
 
@@ -77,7 +77,7 @@ rm *nogaps *blastn *hits.fa Trinity_ermineus.fasta*
 
 ## Multiple sequence alignment
 
-At this point, we will have one file per gene, containing all previous species plus *C. ermineus* we just added. Now, we will align each gene file separately. Ideally, nucleotides of protein-coding genes should be aligned at the codon level, using tools such as [TranslatorX](http://translatorx.co.uk/). For non-coding genes, nucleotides should be treated individually. For simplicity, we will just do this using mafft:
+At this point, we will have one file per gene, containing all previous species plus *C. ermineus* we just added. Now, we will align each gene file separately. Ideally, nucleotides of protein-coding genes should be aligned at the codon level, using tools such as [TranslatorX](http://translatorx.co.uk/). For non-coding genes, nucleotides should be treated individually. For simplicity, we will just do this using [MAFFT](https://mafft.cbrc.jp/alignment/server/):
 ```
 for f in *.new.fas; do mafft $f > $f.mafft; done
 ```
@@ -118,7 +118,7 @@ Evolutionary models are mathematical descriptions of the process by which our da
 
 Several evolutonary models are available. Which one to choose? The model that best fits our data is likely the one under which our data evolved. We will choose the best-fit model using a statistic criterion (Bayesian Information Content, BIC).
 
-Let's select best-fit models for each gene separately. Among all possible models, we will first compare only those implemented in MrBayes, as it is our first analysis. This can be easily done with the IQTREE software:
+Let's select best-fit models for each gene separately. Among all possible models, we will first compare only those implemented in MrBayes, as it is our first analysis. This can be easily done with the [IQTREE](http://www.iqtree.org/) software:
 ```
 iqtree -s FcC_supermatrix.phy -spp FcC_supermatrix_partition.txt -m TESTONLY -mset mrbayes -nt 1
 ```
@@ -131,7 +131,7 @@ The best-fit models will be printed to screen (also available in the `.log` and 
 
 Now we will start inferring actual trees, yay! We will start with Bayesian inference, because it takes longer to compute.
 
-In MrBayes, the input file contains both the alignment and all necessary commands (at the end of the file). To prepare the input file, we will need to manually edit the *nexus* concatenated file (`FcC_supermatrix_partition.nex`, NOT `FcC_supermatrix.nex`). First, we need to specify the best-fit models inferred in the previous analysis (look for `lset` by the end of the file).
+In [MrBayes](http://mrbayes.sourceforge.net/), the input file contains both the alignment and all necessary commands (at the end of the file). To prepare the input file, we will need to manually edit the *nexus* concatenated file (`FcC_supermatrix_partition.nex`, NOT `FcC_supermatrix.nex`). First, we need to specify the best-fit models inferred in the previous analysis (look for `lset` by the end of the file).
 
 How to set up the models?
 - HKY and K2P correspond to nst=2
@@ -174,7 +174,7 @@ Download the consensus file (.con), which is a summary of the trees sampled by t
 
 Now, let's build a maximum likelihood (frequentist) estimate of the phylogeny. This is usually simpler and faster than Bayesian inference, among other things because we will not need to check convergence.
 
-In this tutorial we will use IQTREE, which we had used previously to infer best-fit evolutionary models. Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (`-s`), gene partitions or coordinates (`-spp`), the model (`-m`), number of CPUs to use (`-nt`), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (`-m TEST -merit AICc`). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (`-bb 1000`). 
+In this tutorial we will use [IQTREE](http://www.iqtree.org/), which we had used previously to infer best-fit evolutionary models. Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (`-s`), gene partitions or coordinates (`-spp`), the model (`-m`), number of CPUs to use (`-nt`), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (`-m TEST -merit AICc`). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (`-bb 1000`). 
 ```
 iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit AICc -bb 1000 -nt 1
 ```
@@ -195,7 +195,7 @@ Finally, a major realization of the genomic era has been that phylogenies recons
 
 # Useful resources / Further reading
 
-- Tree thinking – essential in bioinformatics. [The tree-thinking challenge](The tree-thinking challenge) by D. Baum et al. Science (2005) and [Tree thinking for all biology: the problem with reading phylogenies as ladders of progress](https://onlinelibrary.wiley.com/doi/full/10.1002/bies.20794) by KE Omland et al. BioEssays (2008).
+- **Tree thinking – essential in bioinformatics**. [The tree-thinking challenge](The tree-thinking challenge) by D. Baum et al. Science (2005) and [Tree thinking for all biology: the problem with reading phylogenies as ladders of progress](https://onlinelibrary.wiley.com/doi/full/10.1002/bies.20794) by KE Omland et al. BioEssays (2008).
 - Inferencia filogenética, Chapter 9 in [Bioinformática con Ñ](https://www.scribd.com/doc/231270078/Bioinformatica-con-N) by F. Abascal, I. Irisarri and R. Zardoya.
 - [High-throughput genomic data in systematics and phylogenetics](https://www.annualreviews.org/doi/10.1146/annurev-ecolsys-110512-135822) by EM Lemmon and AR Lemmon AREES (2013)
 - [Phylogenomics – An Introduction](https://www.springer.com/gb/book/9783319540627) by C. Bleidorn (2017).
