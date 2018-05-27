@@ -1,16 +1,25 @@
 # Superbrief Phylogenomics 3h-CrashCourse
 
-This is a very short hands-on course to introduce you to the awesomness of phylogenetic inference.
+This is a very short hands-on course to introduce you to the awesomeness of phylogenetic inference.
 
 Nowadays we can infer the evolutionary history from large genomic datasets: phylogenomics.
 
-We will learn a few basic concepts to get you started inferring trees. Note that this does not want to be a comprehensive account of available methods, models, pipelines, etc. The phylogenetic literature is extensive and one can find very good information elsewhere (see a few suggested sources at the very end)
+We will learn the basic concepts to get you started inferring trees. Note that this does not intend to be a comprehensive account of methods, models, software, or pipelines. The phylogenetic literature is extensive and one can find very good and extended information elsewhere (see a few suggested resources at the end).
 
 A phylogenetic tree is a hypothesis of how our data (sequences) evolved. To select the most probable hypothesis we use statistics: probabilistic inference methods. These have explicit assumptions that can be tested and improved.
 
 ## Data in phylogenomics
 
-<<Data types.
+The most commonly used data are DNA or amino acid sequences obtained through various high-throughput sequencing techniques:
+
+**Genomes**
+**Transcriptomes (RNA-seq)**
+**Exon capture/ anchored loci / UCEs**
+**RADseq**
+**Targeted amplicon sequencing**
+**Organellar genomes**
+
+Besides sequence data, other types of data can be derived from genomes, such as transposable element insertion events and other types of rare genomic changes.
 
 Assembling (good-quality) phylogenomic datasets can be extremely painful and time-consuming. A large part of phylogenomics is spent in mining databases for new genomic data and an even larger part should be used in creating good phylogenomic datasets.
 
@@ -25,6 +34,8 @@ Key concepts to remember when dealing with sequence data.
 **Paralogy**: homology derived from a duplication event
 
 ## A phylogenomics pipeline
+
+For time constraints we will not analyze a genome-scale datasets 
 
 As a toy example, we will use a dataset of several species of a cool marine snail (Conidae), composed of nuclear and mitochondrial genes.
 Cone snails are extremely [beautiful and cool animals](https://www.youtube.com/watch?v=zcBmMPJrrKk).
@@ -116,7 +127,7 @@ iqtree -s FcC_supermatrix.phy -spp FcC_supermatrix_partition.txt -m TESTONLY -ms
 The best-fit models will be printed to screen (also available in the .log and .best_scheme.nex files).
 
 ## Bayesian tree inference
-### Setting the analysis
+#### Setting the analysis
 Now we will start inferring actual trees, yay! We will start with Bayesian inference, because it takes longer to compute.
 
 In MrBayes, the input file contains both the alignment and all necessary commands (at the end of the file). To prepare the input file, we will need to manually edit the *nexus* concatenated file (FcC_supermatrix_partition.nex, NOT FcC_supermatrix.nex). We will need to update the best-fit models based on our previous results (look for lset).
@@ -126,8 +137,6 @@ HKY and K2P correspond to nst=2
 GTR and SYM correspond to nst=6
 rate heterogeneity among sites is specified with rates=gamma (+G), rates=inv (+I) or rates=invgamma (+I+G)
 Modify the lset line and add as many lset lines as required to specify all your models.
-
-**Change number of generations?
 
 Then, edit the line referring to MCMC by changing mcmc by mcmcp.
 
@@ -139,7 +148,7 @@ mb -i FcC_supermatrix_partition.nex
 ```
 If no errors are shown, we can start to run the MCMC chains by typing mcmc in the prompt.
 
-### Checking convergence
+#### Checking convergence
 
 After the runs are completed, we must check whether they converged. If not, then we should run the analysis longer or change the priors.
 
@@ -147,7 +156,7 @@ How do we know whether the runs have converged? A very simple way is to the the 
 
 Bear in mind that convergence is serious bussiness and one should normally use other tools, such as [AWTY](https://www.ncbi.nlm.nih.gov/pubmed/17766271) or [Tracer](http://tree.bio.ed.ac.uk/software/tracer/). But lest's leave this for next time :-)
 
-### Summarizing the posterior
+#### Summarizing the posterior
 
 Once the runs are converged, we can summarize the posterior estimates from the two MCMC chains to obtain our tree and posterior probabilities.
 
@@ -168,15 +177,32 @@ Download the consensus file (.con), which is a summary of the trees sampled by t
 
 Building maximum likelihood trees is easier than Bayesian trees because we will not need to check converngece.
 
-In this tutorial we will use IQTREE, which we had used previously to estimate the best-fit evolutionary models. We will estimate the phylogeny of conid snails as done before in a Bayesian framework, this time using a frequentist approach (maximum likelihood). Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (-s), gene partitions or coordinates (-spp), the model (-m), number of CPUs to use (-nt), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (-m TEST -merit AICc). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 100 pseudoreplicates of non-parametric bootstrapping (-b 100). 
+In this tutorial we will use IQTREE, which we had used previously to estimate the best-fit evolutionary models. We will estimate the phylogeny of conid snails as done before in a Bayesian framework, this time using a frequentist approach (maximum likelihood).
+
+Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (-s), gene partitions or coordinates (-spp), the model (-m), number of CPUs to use (-nt), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (-m TEST -merit AICc). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (-bb 1000). 
 ```
-iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit AICc -b 100 -nt 1
+iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit AICc -bb 1000 -nt 1
 ```
 
 Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are non-parametric bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
 
-IQTREE provides many different options
+# Some notes on phylogenomics and systematic error
 
-# Some notes on systematic error
+The use of genome-scale data drastically reduce stochastic error and thus produce very precise inferences. However, phylogenomics might be more sensitive to violations of model assumptions. Such violations might be negligible in small-scale phylogenetics, but can be exacerbated when using hundreds or thousands of genes. This is known as **systematic error**, and in phylogenomics practice one should always ensure that the obtained phylogenies are robust to known sources of systematic biases. Systematic biases typically refer to evolutionary processes that are heterogeneous across the genome, between species, and in time. Often these reflect biological adaptations, such as the independent evolution of GC-rich genomes in heat-adapted bacteria.
 
+Some of the above-mentioned heterogeneities can be accounted for with more sophisticated models than those used in this tutorial. Among the most commonly used ones are **mixture models** that account for the heterogeneity of evolution between genes and amino acids. These models typically fit the data better and thus produce more accurate estimates of phylogeny. Since these models are more complex, they require many more parameters to be estimated from the data and they are computationally more expensive.
+
+With increasing sizes of genomic datasets and the the use of more and more complex models (to account for systematic error) the best is to find a trade-off between alignment size and the sophistication of the model.
+
+Because large datasets increase the precision of phylogeny, commonly used **branch support** values (non-parametric bootsrapping and mostly Bayesian posterior probabilities) are usually **inflated**. Therefore, high support from such measures in phylogenomics is only partly informative. More stringent measurements are being developed, such as [gene jackknifing](https://www.nature.com/articles/s41559-017-0240-5) or [quartet-based measures](https://onlinelibrary.wiley.com/doi/abs/10.1002/ajb2.1016). The classic on-parametric bootstrapping also requires a lot of computational effort for large datasets, and thus other faster approximate measures are being developed, including the ultra-fast bootstrapping used above.
+
+Finally, a major realization of the genomic era has been that phylogenies reconstructed from different genes or genomic regions differ from each other and/or from the global **species tree**. The reasons can be biological or methodological. Methods that reconcile these incongruences are also commonly used, e.g. [ASTRAL](https://github.com/smirarab/ASTRAL).
+
+# Useful resources / Further reading
+
+Tree thinking – essential in bioinformatics. [The tree-thinking challenge](The tree-thinking challenge) by D. Baum et al. Science (2005) and [Tree thinking for all biology: the problem with reading phylogenies as ladders of progress](https://onlinelibrary.wiley.com/doi/full/10.1002/bies.20794) by KE Omland et al. BioEssays (2008).
+Inferencia filogenética, Chapter 9 in [Bioinformática con Ñ](https://www.scribd.com/doc/231270078/Bioinformatica-con-N) by F. Abascal, I. Irisarri and R. Zardoya.
+[High-throughput genomic data in systematics and phylogenetics](https://www.annualreviews.org/doi/10.1146/annurev-ecolsys-110512-135822) by EM Lemmon and AR Lemmon AREES (2013)
+[Phylogenomics – An Introduction](https://www.springer.com/gb/book/9783319540627) by C. Bleidorn (2017).
+[The Phylogenetic Handbook 2nd Ed.](http://www.cambridge.org/us/academic/subjects/life-sciences/genomics-bioinformatics-and-systems-biology/phylogenetic-handbook-practical-approach-phylogenetic-analysis-and-hypothesis-testing-2nd-edition?format=PB&isbn=9780521730716#mzxhCgA9pXliYy7j.97) edited by P. Lemey et al. (2009)
 
