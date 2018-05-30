@@ -29,9 +29,9 @@ Luckily, today we can skip this pain in the ass :-)
 
 Key concepts to remember when dealing with sequence data.
 
-**Homology**: origin from common ancestry
-**Orthology**: homology derived from an speciation event
-**Paralogy**: homology derived from a duplication event
+- **Homology**: origin from common ancestry
+- **Orthology**: homology derived from an speciation event
+- **Paralogy**: homology derived from a duplication event
 
 ## A phylogenomics pipeline
 
