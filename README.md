@@ -46,7 +46,7 @@ Connect to [our server](https://datasciencehub.ifca.es/). Download the dataset f
 wget https://github.com/iirisarri/UIMP-phylo_pipeline/conidae_mito_nuclear.tar.gz
 tar zxvf conidae_mito_nuclear.tar.gz
 ```
-Create a new directory `phylosandbox` where we can work with our data without changing the original files. To start, copy the nuclear gene alignments and the new transcriptome you just assembled for *Cheliconus ermineus* (or the Trinity-assembled transcripts in `assemblies/Trinity_ermineus.fasta`).
+Create a new directory `phylosandbox` where we can work with our data without changing the original files. To start, copy the nuclear gene alignments and the new transcriptome you just assembled for *Chelyconus ermineus* (or the Trinity-assembled transcripts in `assemblies/Trinity_ermineus.fasta`).
 ```
 cd conidae_mito_nuclear
 mkdir phylosandbox
@@ -57,7 +57,7 @@ cd phylosandbox
 
 ## Adding new sequences to our alignments
 
-We will add the new assembled transcripts from [*Cheliconus ermineus*](https://en.wikipedia.org/wiki/Conus_ermineus) to the set of nuclear genes present in our dataset.
+We will add the new assembled transcripts from [*Chelyconus ermineus*](https://en.wikipedia.org/wiki/Conus_ermineus) to the set of nuclear genes present in our dataset.
 
 The easiest way of adding new sequences to a existing dataset is using BLAST. To speed up this process, we will use a custom per script that takes a gene alignment (query) and the sequence collection from the species of interest (the transcriptome) and identifies *homologous* sequences from the database (hits). Then, these hits are retrieved from the database and printed to a new file (.hit.fa). The same could be done using the mitochondrial gene files and the collection of mitochondrial genes assembled for *C. ermineus*.
 
@@ -67,6 +67,9 @@ for f in Trinity*.fasta; do sed -E '/>/ s/ len=.+//g' $f > out; mv out $f; done
 for f in *fas; do perl ../scripts/blastn_and_extract_hits.pl $f Trinity_ermineus.fasta; done 
 ```
 The `blastn_and_extract_hits.pl` script should have produced one hits.fa file containing a single sequence per gene, which should correspond to the best hit (most similar sequence found in the database). Check that a each file contains only a single best sequence.
+
+NOTE: `blastn_and_extract_hits.pl` requires BioPerl. If this is not installed in your system, you might have gotten some error messages. Do not worry! You can find the gene files with already added *C. ermineus* sequences in `alignments/nuclear_genes_complete/`.
+
 Now, since we want beautiful names in the final alignments, let's change the default Trinity codes. Then, append the new sequences to each of the the existing alignment. Finally, we can clean the folder by removing intermediate files created by the perl script we no longer need.
 ```
 for f in *hits.fa; do sed -E '/>/ s/TRINITY.+/Chelyconus_ermineus/g' $f > out; mv out $f; done
