@@ -74,7 +74,7 @@ for f in *hits.fa; do sed -E '/>/ s/TRINITY.+/Chelyconus_ermineus/g' $f > out; m
 for f in *fas; do  cat $f $f.hits.fa > $f.new.fas; done
 rm *nogaps *blastn *hits.fa Trinity_ermineus.fasta*
 ```
-**NOTE**: the best BLAST hit is not necessarily ortholog to the query sequences, but can be a paralog. Paralogs should always be removed prior to phylogenetic inference! One simple way could be to build single-gene trees and look for extremely long branches, which are probably paralgs. But this is not a trivial task and can become very time consuming for large datasets. Still, not a good enough reason to not do a proper job!
+**NOTE**: the best BLAST hit is not necessarily ortholog to the query sequences, but can be a paralog. Paralogs should always be removed prior to phylogenetic inference! One simple way could be to build single-gene trees and look for extremely long branches, which are probably paralogs. But this is not a trivial task and can become very time consuming for large datasets. Still, not a good enough reason to not do a proper job!
 
 ## Multiple sequence alignment
 
@@ -85,7 +85,7 @@ for f in *.new.fas; do mafft $f > $f.mafft; done
 
 ## Alignment trimming
 
-Some gene regions (e.g., fast-evolving regions) are difficult to align and thus positional homology is unceratin. It is unclear (probably problem-specific) whether trimming badly-aligned regions [improves](https://academic.oup.com/sysbio/article/56/4/564/1682121) or [worsens](https://academic.oup.com/sysbio/article/64/5/778/1685763) tree inferece. However, gently trimming very incomplete positions (e.g. with >80% gaps) reduces dataset time and thus speeds up computation time without significant information loss.
+Some gene regions (e.g., fast-evolving regions) are difficult to align and thus positional homology is unceratin. It is unclear (probably problem-specific) whether trimming badly-aligned regions [improves](https://academic.oup.com/sysbio/article/56/4/564/1682121) or [worsens](https://academic.oup.com/sysbio/article/64/5/778/1685763) tree inferece. However, gently trimming very incomplete positions (e.g. with >80% gaps) reduces dataset length and thus speeds up computation time without significant information loss.
 
 To trim alignment positions we can use [BMGE](https://bmcevolbiol.biomedcentral.com/articles/10.1186/1471-2148-10-210) but several other software are also available.
 
@@ -121,16 +121,27 @@ Several evolutonary models are available. Which one to choose? The model that be
 
 Let's select best-fit models for each gene separately. Among all possible models, we will first compare only those implemented in MrBayes, as it is our first analysis. This can be easily done with the [IQTREE](http://www.iqtree.org/) software:
 ```
-iqtree -s FcC_supermatrix.phy -spp FcC_supermatrix_partition.txt -m TESTONLY -mset mrbayes -nt 1
+iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TESTONLY -mset mrbayes -nt 1
 ```
 
 The best-fit models will be printed to screen (also available in the `.log` and `.best_scheme.nex` files).
+
+## Maximum likelihood
+
+Now we will start inferring actual trees, yay! Let's build a maximum likelihood (frequentist) estimate of the phylogeny. This is usually simpler and faster than Bayesian inference, among other things because we will not need to check convergence.
+
+In this tutorial we will use [IQTREE](http://www.iqtree.org/), which we had used previously to infer best-fit evolutionary models. Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (`-s`), gene partitions or coordinates (`-spp`), the model (`-m`), number of CPUs to use (`-nt`), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (`-m TEST -merit AICc`). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (`-bb 1000`). 
+```
+iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit AICc -bb 1000 -nt 1
+```
+
+Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are ultrafast bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
 
 ## Bayesian tree inference
 
 #### Setting the analysis
 
-Now we will start inferring actual trees, yay! We will start with Bayesian inference, because it takes longer to compute.
+Now we will infer a Bayesian phylogenetic tree.
 
 In [MrBayes](http://mrbayes.sourceforge.net/), the input file contains both the alignment and all necessary commands (at the end of the file). To prepare the input file, we will need to manually edit the *nexus* concatenated file (`FcC_supermatrix_partition.nex`, NOT `FcC_supermatrix.nex`). First, we need to specify the best-fit models inferred in the previous analysis (look for `lset` by the end of the file).
 
@@ -170,17 +181,6 @@ mb -i FcC_supermatrix_partition.nex
 Congrats! You just generated your first [Bayesian estimate of phylogeny](https://www.youtube.com/watch?v=RMNwsdb5VU4)!
 
 Download the consensus file (.con), which is a summary of the trees sampled by the two MCMC chains during the stationary phase. The tree can be visualized with [FigTree](http://tree.bio.ed.ac.uk/software/figtree/) or any other visualizing software. The numbers at branches (label) correspond to posterior probabilities, which inform us about the reliability of each branch in the phylogeny. Posterior probabilities >0.95 can be trusted as robust.
-
-## Maximum likelihood
-
-Now, let's build a maximum likelihood (frequentist) estimate of the phylogeny. This is usually simpler and faster than Bayesian inference, among other things because we will not need to check convergence.
-
-In this tutorial we will use [IQTREE](http://www.iqtree.org/), which we had used previously to infer best-fit evolutionary models. Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (`-s`), gene partitions or coordinates (`-spp`), the model (`-m`), number of CPUs to use (`-nt`), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (`-m TEST -merit AICc`). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (`-bb 1000`). 
-```
-iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit AICc -bb 1000 -nt 1
-```
-
-Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are ultrafast bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
 
 # Some notes on phylogenomics and systematic error
 
