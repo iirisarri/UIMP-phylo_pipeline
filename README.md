@@ -1,4 +1,4 @@
-# Superbrief Phylogenomics 3h-CrashCourse
+# Superbrief (3h) Phylogenomics CrashCourse
 
 This is a very-short hands-on course to introduce you to the awesomeness of phylogenetic inference.
 
