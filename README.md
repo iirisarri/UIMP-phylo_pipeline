@@ -41,10 +41,9 @@ Due to time constraints, we cannot analyze a real genome-scale dataset consistin
 
 Let's start by downloading the data.
 
-Connect to [our server](https://datasciencehub.ifca.es/). Download the dataset from [this respository](https://github.com/iirisarri/UIMP-phylo_pipeline/conidae_mito_nuclear.zip) and decompress it into your preferred location.
+Connect to [our server](https://datasciencehub.ifca.es/) and clone this repository.
 ```
-wget https://github.com/iirisarri/UIMP-phylo_pipeline/conidae_mito_nuclear.tar.gz
-tar zxvf conidae_mito_nuclear.tar.gz
+git clone https://github.com/iirisarri/UIMP-phylo_pipeline.git
 ```
 Create a new directory `phylosandbox` where we can work with our data without changing the original files. To start, copy the nuclear gene alignments and the new transcriptome you just assembled for *Chelyconus ermineus* (or the Trinity-assembled transcripts in `assemblies/Trinity_ermineus.fasta`).
 ```
