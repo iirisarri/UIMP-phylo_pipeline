@@ -47,7 +47,6 @@ git clone https://github.com/iirisarri/UIMP-phylo_pipeline.git
 ```
 Create a new directory `phylosandbox` where we can work with our data without changing the original files. To start, copy the nuclear gene alignments and the new transcriptome you just assembled for *Chelyconus ermineus* (or the Trinity-assembled transcripts in `assemblies/Trinity_ermineus.fasta`).
 ```
-cd conidae_mito_nuclear
 mkdir phylosandbox
 cp alignments/nuclear_genes/*fas phylosandbox
 cp assemblies/Trinity_ermineus.fasta phylosandbox
