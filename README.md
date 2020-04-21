@@ -113,19 +113,6 @@ perl ../../scripts/FASconCAT-G_v1.02.pl -p -l -s -n -n
 ```
 Great!! Our dataset is ready to rock!!
 
-## Select best-fit evolutionary models for each gene
-
-Evolutionary models are mathematical descriptions of the process by which our data evolved. We need to assume a explicit model in probabilistic phylogenetic inference. 
-
-Several evolutonary models are available. Which one to choose? The model that best fits our data is likely the one under which our data evolved. We will choose the best-fit model using a statistic criterion (Bayesian Information Content, BIC).
-
-Let's select best-fit models for each gene separately. Among all possible models, we will first compare only those implemented in MrBayes, as it is our first analysis. This can be easily done with the [IQTREE](http://www.iqtree.org/) software:
-```
-iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TESTONLY -mset mrbayes -nt 1
-```
-
-The best-fit models will be printed to screen (also available in the `.log` and `.best_scheme.nex` files).
-
 ## Maximum likelihood
 
 Now we will start inferring actual trees, yay! Let's build a maximum likelihood (frequentist) estimate of the phylogeny. This is usually simpler and faster than Bayesian inference, among other things because we will not need to check convergence.
@@ -136,6 +123,20 @@ iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit 
 ```
 
 Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are ultrafast bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
+
+## Select best-fit evolutionary models for each gene
+
+Evolutionary models are mathematical descriptions of the process by which our data evolved. We need to assume a explicit model in probabilistic phylogenetic inference. 
+
+Several evolutonary models are available. Which one to choose? The model that best fits our data is likely the one under which our data evolved. We will choose the best-fit model using a statistic criterion (Bayesian Information Content, BIC).
+
+Let's select best-fit models for each gene separately. Among all possible models, we will first compare only those implemented in MrBayes, as it is our first analysis. This can be easily done with the [IQTREE](http://www.iqtree.org/) software:
+```
+iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TESTONLY -mset mrbayes -nt 1 -pre modelfinder
+```
+
+The best-fit models will be printed to screen (also available in the `.log` and `.best_scheme.nex` files).
+
 
 ## Bayesian tree inference
 
