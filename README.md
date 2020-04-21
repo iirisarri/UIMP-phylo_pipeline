@@ -103,26 +103,14 @@ We will generate an output in *phylip* format that will allow us to quickly chec
 
 Create a super-alignment by concatenating all gene files. We will use [FASconCAT](link), which will read in all \*.fas \*.phy or \*.nex files in the working directory and concatenate them (in a random order) into a super-alignment. Output format can be chosen and additional information is also printed out.
 
-First of all, create a new directory and copy all relevant files (both the mitochondrial and nuclear gene alignments!)
+First of all, create a new directory and copy all relevant files, the execute the script.
 ```
 mkdir concatenation
 cd concatenation
 mv ../*trim.phy .
-cp ../../alignments/mitochondrial_genes/*fas .
 perl ../../scripts/FASconCAT-G_v1.02.pl -p -l -s -n -n
 ```
 Great!! Our dataset is ready to rock!!
-
-## Maximum likelihood
-
-Now we will start inferring actual trees, yay! Let's build a maximum likelihood (frequentist) estimate of the phylogeny. This is usually simpler and faster than Bayesian inference, among other things because we will not need to check convergence.
-
-In this tutorial we will use [IQTREE](http://www.iqtree.org/), which we had used previously to infer best-fit evolutionary models. Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (`-s`), gene partitions or coordinates (`-spp`), the model (`-m`), number of CPUs to use (`-nt`), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (`-m TEST -merit AICc`). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (`-bb 1000`). 
-```
-iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit BIC -bb 1000 -nt 1 -pre partitioned
-```
-
-Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are ultrafast bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
 
 ## Select best-fit evolutionary models for each gene
 
@@ -137,6 +125,16 @@ iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TESTONLY -ms
 
 The best-fit models will be printed to screen (also available in the `.log` and `.best_scheme.nex` files).
 
+## Maximum likelihood
+
+Now we will start inferring actual trees, yay! Let's build a maximum likelihood (frequentist) estimate of the phylogeny. This is usually simpler and faster than Bayesian inference, among other things because we will not need to check convergence.
+
+In this tutorial we will use [IQTREE](http://www.iqtree.org/), which we had used previously to infer best-fit evolutionary models. Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (`-s`), gene partitions or coordinates (`-spp`), the model (`-m`), number of CPUs to use (`-nt`), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (`-m TEST -merit AICc`). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (`-bb 1000`). 
+```
+iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit BIC -bb 1000 -nt 1 -pre partitioned
+```
+
+Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are ultrafast bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
 
 ## Bayesian tree inference
 
@@ -152,7 +150,7 @@ How to set up the models?
 - Rate heterogeneity among sites is specified with rates=gamma (+G), rates=inv (+I) or rates=invgamma (+I+G)
 Modify the lset line and add as many lset lines as required to specify all your models.
 
-Then, edit the line referring to MCMC by changing `mcmc` to `mcmcp`. Now the input file is ready. If you had any problems formatting the nexus file, a input file can be found in `mrbayes/Conidae_supermatrix_partition.nex`.
+Then, edit the line referring to MCMC by changing `mcmc` to `mcmcp`. Also, you can decrease the number of generations to reduce waiting time (suggest)in order to speed up the anNow the input file is ready. If you had any problems formatting the nexus file, a input file can be found in `mrbayes/Conidae_supermatrix_partition.nex`.
 
 Let's run MrBayes. Setting `mcmcp` and running MrBayes interactively (`-i`) allow us to check that the infile is correct before actually running the program.
 ```
