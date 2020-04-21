@@ -119,7 +119,7 @@ Now we will start inferring actual trees, yay! Let's build a maximum likelihood 
 
 In this tutorial we will use [IQTREE](http://www.iqtree.org/), which we had used previously to infer best-fit evolutionary models. Running a maximum likelihood analysis with IQTREE is straightforward. We need to provide the input alignment (`-s`), gene partitions or coordinates (`-spp`), the model (`-m`), number of CPUs to use (`-nt`), and additional parameters. In this case, we will select again best-fit models according to the corrected Akaike Information Criterion (`-m TEST -merit AICc`). Compared to MrBayes, IQTREE allows us to use more models and this is preferable as it can improve model fit. In addition to the maximum likelihood tree, we will assess branch support using 1000 pseudoreplicates of ultrafast bootstrapping (`-bb 1000`). 
 ```
-iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit AICc -bb 1000 -nt 1
+iqtree -s FcC_supermatrix.fas -spp FcC_supermatrix_partition.txt -m TEST -merit BIC -bb 1000 -nt 1 -pre partitioned
 ```
 
 Congratulations! If everything went well, here you have the [maximum likelihood estimation of your phylogeny](https://www.youtube.com/watch?v=1FkhCQl2hRs&t=76s) (.treefile)! This can be visualized with FigTree. The numbers at branches (label) are ultrafast bootstrap proportions, which analogously to Bayesian posterior probabilites, inform us about the reliability of that branch. Values >70% can be trusted as robust.
