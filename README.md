@@ -197,7 +197,7 @@ Finally, a major realization of the genomic era has been that phylogenies recons
 
 - **Tree thinking – essential in bioinformatics**. [The tree-thinking challenge](https://science.sciencemag.org/content/310/5750/979) by D. Baum et al. Science (2005) and [Tree thinking for all biology: the problem with reading phylogenies as ladders of progress](https://onlinelibrary.wiley.com/doi/full/10.1002/bies.20794) by KE Omland et al. BioEssays (2008).
 - Inferencia filogenética, Chapter 9 in [Bioinformática con Ñ](https://www.scribd.com/doc/231270078/Bioinformatica-con-N) by F. Abascal, I. Irisarri and R. Zardoya.
-- [Phylogenetics in the Genomic Era](https://hal.archives-ouvertes.fr/hal-02535070/). Scornavacca, Delsuc, Galtier Eds. 2020
+- [Phylogenetics in the Genomic Era](https://hal.archives-ouvertes.fr/hal-02535070/) by C. Scornavacca, F. Delsuc, N. Galtier, Eds (2020).
 - [High-throughput genomic data in systematics and phylogenetics](https://www.annualreviews.org/doi/10.1146/annurev-ecolsys-110512-135822) by EM Lemmon and AR Lemmon AREES (2013)
 - [Phylogenomics – An Introduction](https://www.springer.com/gb/book/9783319540627) by C. Bleidorn (2017).
 - [The Phylogenetic Handbook 2nd Ed.](http://www.cambridge.org/us/academic/subjects/life-sciences/genomics-bioinformatics-and-systems-biology/phylogenetic-handbook-practical-approach-phylogenetic-analysis-and-hypothesis-testing-2nd-edition?format=PB&isbn=9780521730716#mzxhCgA9pXliYy7j.97) edited by P. Lemey et al. (2009)
